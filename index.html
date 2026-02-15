@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>E-Voting Space Edition (Mobile Fix)</title>
+    <title>E-Voting IF25 - DILZ)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
 
@@ -93,11 +93,12 @@
             flex-direction: column;
             align-items: center;
         }
-        .card:hover {
-            transform: translateY(-5px);
-            background: rgba(197, 31, 26, 0.90);
-            border-color: rgba(255, 255, 255, 1);
-        }
+
+            .card:active, .card:hover {
+                transform: scale(0.98) !important;
+                background: rgba(197, 31, 26, 0.90);
+                border-color: rgba(255, 255, 255, 1);
+            }
 
         .number-badge {
             font-size: 1.5rem;
@@ -199,6 +200,14 @@
                 padding: 12px;
                 border-radius: 15px;
             }
+			
+			/* Saat disentuh/dipencet di HP, kartu mengecil (bukan naik) */
+            .card:active, .card:hover {
+                transform: scale(0.98) !important;
+                background: rgba(197, 31, 26, 0.90);
+                border-color: rgba(255, 255, 255, 1);
+            }
+			
             .number-badge { width: 30px; height: 30px; font-size: 0.9rem; margin-bottom: 8px; }
             .img-placeholder { width: 80px; height: 80px; margin-bottom: 8px; border-radius: 10px; }
             .candidate-name { font-size: 0.75rem; min-height: 35px; margin-bottom: 10px; }
@@ -259,7 +268,7 @@
         <canvas id="starCanvas"></canvas>
 
         <div class="container">
-            <h1 class="font-effect">VOTE<br>Himatika</h1>
+            <h1 class="font-effect">Calon Ketua & Wakil<br>HIMATIKA</h1>
             <div class="candidates-grid" id="candidate-container"></div>
         </div>
     </div>
