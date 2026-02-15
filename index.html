@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>E-Voting Space Edition (Landscape)</title>
+    <title>E-Voting Space Edition (Mobile Fix)</title>
     
-<link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
 
     <style>
         /* --- RESET & BACKGROUND GLOBAL --- */
@@ -20,29 +20,13 @@
             overflow: hidden;
         }
 
-        /* --- WRAPPER UTAMA (ROTASI OTOMATIS) --- */
+        /* --- WRAPPER UTAMA --- */
         #rotate-wrapper {
             width: 100vw;
             height: 100vh;
             position: relative;
             overflow-x: hidden;
             overflow-y: auto;
-        }
-
-        /* --- LOGIKA PAKSA LANDSCAPE --- */
-        @media screen and (orientation: portrait) {
-            #rotate-wrapper {
-                width: 100vh; 
-                height: 100vw;
-                transform: rotate(90deg);
-                transform-origin: top left;
-                position: absolute;
-                top: 0;
-                left: 100vw;
-                scrollbar-width: none; 
-                -ms-overflow-style: none;
-            }
-            #rotate-wrapper::-webkit-scrollbar { display: none; }
         }
 
         /* --- CANVAS BINTANG --- */
@@ -56,31 +40,7 @@
             pointer-events: none;
         }
 
-        /* --- METEOR --- */
-        .meteor {
-            position: absolute;
-            opacity: 0;
-            transform-origin: left center;
-            pointer-events: none;
-            z-index: 1;
-            background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
-            border-radius: 500px;
-            will-change: transform, opacity;
-        }
-        @keyframes shooting {
-            0% { transform: translate(0, 0) rotate(-45deg); opacity: 1; }
-            100% { transform: translate(-100vh, 100vh) rotate(-45deg); opacity: 0; }
-        }
-        .meteor-head {
-            position: absolute;
-            left: 0; top: 50%;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            background: #fff;
-            box-shadow: 0 0 10px 2px rgba(100, 200, 255, 0.8);
-        }
-
-        /* --- KONTEN --- */
+        /* --- KONTEN STANDARD (DESKTOP) --- */
         .container {
             position: relative;
             z-index: 10;
@@ -94,31 +54,32 @@
             align-items: center;
             justify-content: center;
             min-height: 100%;
+            box-sizing: border-box; /* Penting agar padding tidak melebarkan wadah */
         }
 
-        /* JUDUL DENGAN FONT SOFIA & EFEK NEON */
         h1 {
-            font-family: "Bungee", sans-serif; /* Menggunakan Font Sofia */
+            font-family: "Bungee", sans-serif;
             margin-bottom: 40px;
-            font-size: 3rem; /* Diperbesar sedikit agar efek terlihat jelas */
+            font-size: 3rem;
             letter-spacing: 2px;
             color: #4169E1;
-            /* Text-shadow manual dihapus agar efek neon dari Google Font bekerja maksimal */
+            text-shadow: 0 0 10px rgba(65, 105, 225, 0.5);
+            line-height: 1.2;
         }
 
         .candidates-grid {
             display: flex;
-            flex-wrap: nowrap;
+            flex-wrap: nowrap; /* Mencegah turun ke bawah */
             gap: 20px;
             width: 100%;
             justify-content: center;
             align-items: stretch;
             padding-bottom: 20px;
-            overflow-x: auto;
+            overflow-x: auto; /* Scroll samping jika sempit */
         }
 
         .card {
-            flex: 0 0 280px;
+            flex: 0 0 280px; /* Ukuran Desktop */
             background: rgba(65, 105, 225, 0.75);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
@@ -195,18 +156,118 @@
         }
         .vote-label { font-size: 0.8rem; opacity: 0.7; text-transform: uppercase; }
 
+        /* --- LOGIKA KHUSUS HP (PORTRAIT DIBALIK JADI LANDSCAPE) --- */
+        @media screen and (orientation: portrait) {
+            #rotate-wrapper {
+                width: 100vh; 
+                height: 100vw;
+                transform: rotate(90deg);
+                transform-origin: top left;
+                position: absolute;
+                top: 0;
+                left: 100vw;
+                overflow-y: hidden; /* Hilangkan scroll vertikal */
+                overflow-x: hidden;
+            }
+
+            /* --- PENYESUAIAN UKURAN AGAR MUAT DI HP --- */
+            .container {
+                padding: 10px; /* Padding lebih tipis */
+                justify-content: center;
+                height: 100vh; /* Full tinggi layar landscape */
+            }
+
+            h1 {
+                font-size: 1.5rem; /* Judul diperkecil drastis */
+                margin-bottom: 15px;
+            }
+
+            .candidates-grid {
+                gap: 10px; /* Jarak antar kartu dirapatkan */
+                padding-bottom: 0;
+            }
+
+            .card {
+                flex: 0 0 160px; /* Lebar kartu diperkecil (dari 280px ke 160px) */
+                padding: 10px; /* Padding dalam kartu diperkecil */
+                border-radius: 12px;
+            }
+
+            .number-badge {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
+                margin-bottom: 5px;
+            }
+
+            .img-placeholder {
+                width: 70px; /* Gambar diperkecil */
+                height: 70px;
+                margin-bottom: 5px;
+                border-radius: 10px;
+            }
+
+            .candidate-name {
+                font-size: 0.7rem; /* Font nama diperkecil */
+                min-height: 30px;
+                margin-bottom: 10px;
+                line-height: 1.1;
+            }
+
+            .btn-vote {
+                padding: 6px 15px; /* Tombol diperkecil */
+                font-size: 0.75rem;
+            }
+
+            .vote-count {
+                font-size: 1.2rem; /* Angka diperkecil */
+                margin-top: 10px;
+            }
+            
+            .vote-label {
+                font-size: 0.6rem;
+            }
+        }
+
+        /* --- HINT ROTASI & METEOR --- */
         .rotate-hint {
             display: none;
             position: fixed;
             bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 0.8rem;
-            opacity: 0.5;
+            font-size: 0.7rem;
+            opacity: 0.6;
             z-index: 100;
+            background: rgba(0,0,0,0.5);
+            padding: 5px 10px;
+            border-radius: 10px;
         }
         @media screen and (orientation: portrait) {
             .rotate-hint { display: block; }
+        }
+
+        .meteor {
+            position: absolute;
+            opacity: 0;
+            transform-origin: left center;
+            pointer-events: none;
+            z-index: 1;
+            background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 500px;
+            will-change: transform, opacity;
+        }
+        @keyframes shooting {
+            0% { transform: translate(0, 0) rotate(-45deg); opacity: 1; }
+            100% { transform: translate(-100vh, 100vh) rotate(-45deg); opacity: 0; }
+        }
+        .meteor-head {
+            position: absolute;
+            left: 0; top: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 10px 2px rgba(100, 200, 255, 0.8);
         }
     </style>
 </head>
@@ -216,32 +277,34 @@
         <canvas id="starCanvas"></canvas>
 
         <div class="container">
-            <h1 class="font-effect">Calon Ketua & Wakil Ketua<br>Himatika</h1>
+            <h1 class="font-effect">VOTE<br>Himatika</h1>
             
             <div class="candidates-grid" id="candidate-container"></div>
         </div>
 
-        <div class="rotate-hint">Mode Landscape Aktif</div>
+        <div class="rotate-hint">Mode Landscape (HP)</div>
     </div>
 
     <script>
-        // --- BAGIAN 1: BACKGROUND (Tetap Sama) ---
+        // --- BAGIAN 1: BACKGROUND ---
         const canvas = document.getElementById('starCanvas');
         const ctx = canvas.getContext('2d');
         const wrapper = document.getElementById('rotate-wrapper');
         let width, height, stars = [];
         const isMobile = window.innerWidth < 768;
-        const starCount = isMobile ? 120 : 250; 
+        const starCount = isMobile ? 80 : 250; 
 
         function resize() {
-            const isPortrait = window.innerHeight > window.innerWidth;
-            if (isPortrait) {
-                width = window.innerHeight;
-                height = window.innerWidth;
-            } else {
-                width = window.innerWidth;
-                height = window.innerHeight;
+            // Logika resize disederhanakan agar canvas selalu mengikuti ukuran visual
+            width = window.innerWidth;
+            height = window.innerHeight;
+            
+            // Jika di HP (portrait), canvas harus mengikuti ukuran wrapper yang diputar
+            if (window.innerHeight > window.innerWidth && window.innerWidth < 768) {
+                 width = window.innerHeight;
+                 height = window.innerWidth;
             }
+
             canvas.width = width;
             canvas.height = height;
             initStars();
@@ -281,7 +344,7 @@
         resize();
         animateStars();
 
-        // --- BAGIAN 2: METEOR (Tetap Sama) ---
+        // --- BAGIAN 2: METEOR ---
         let isTabActive = true;
         let meteorTimeout;
         document.addEventListener('visibilitychange', () => {
@@ -292,12 +355,12 @@
 
         function spawnMeteor() {
             if (!isTabActive) return;
-            if (document.querySelectorAll('.meteor').length > 4) return;
+            if (document.querySelectorAll('.meteor').length > 3) return; // Batasi meteor di HP biar ringan
 
             const meteor = document.createElement('div');
             meteor.classList.add('meteor');
             const headSize = Math.random() * 2 + 2;
-            const tailLength = headSize * (Math.random() * 40 + 30);
+            const tailLength = headSize * (Math.random() * 30 + 20);
             const startX = Math.random() * 100; 
             const duration = Math.random() * 1.5 + 1;
 
@@ -326,11 +389,11 @@
         }
         setTimeout(meteorLoop, 1000);
 
-        // --- BAGIAN 3: SISTEM VOTING (Tetap Sama) ---
+        // --- BAGIAN 3: SISTEM VOTING ---
         const candidatesData = [
-            { id: 1, number: "01", name: "Ketua & Wakil Ketua", image: "https://i.ibb.co.com/7JfXSfBc/kain-UIM-paslon-1.png" },
-            { id: 2, number: "02", name: "Ketua & Wakil Ketua", image: "https://i.ibb.co.com/7JfXSfBc/kain-UIM-paslon-1.png" },
-            { id: 3, number: "03", name: "Ketua & Wakil Ketua", image: "https://i.ibb.co.com/7JfXSfBc/kain-UIM-paslon-1.png" }
+            { id: 1, number: "01", name: "Ketua & Wakil 1", image: "https://i.ibb.co.com/7JfXSfBc/kain-UIM-paslon-1.png" },
+            { id: 2, number: "02", name: "Ketua & Wakil 2", image: "https://i.ibb.co.com/7JfXSfBc/kain-UIM-paslon-1.png" },
+            { id: 3, number: "03", name: "Ketua & Wakil 3", image: "https://i.ibb.co.com/7JfXSfBc/kain-UIM-paslon-1.png" }
         ];
         const STORAGE_KEY = 'voting_data_v1';
 
