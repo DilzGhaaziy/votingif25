@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>E-Voting Space Edition (Landscape)</title>
+    
+<link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- RESET & BACKGROUND GLOBAL --- */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at bottom, #0B1026 0%, #000000 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* --- WRAPPER UTAMA (ROTASI OTOMATIS) --- */
+        #rotate-wrapper {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        /* --- LOGIKA PAKSA LANDSCAPE --- */
+        @media screen and (orientation: portrait) {
+            #rotate-wrapper {
+                width: 100vh; 
+                height: 100vw;
+                transform: rotate(90deg);
+                transform-origin: top left;
+                position: absolute;
+                top: 0;
+                left: 100vw;
+                scrollbar-width: none; 
+                -ms-overflow-style: none;
+            }
+            #rotate-wrapper::-webkit-scrollbar { display: none; }
+        }
+
+        /* --- CANVAS BINTANG --- */
+        #starCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* --- METEOR --- */
+        .meteor {
+            position: absolute;
+            opacity: 0;
+            transform-origin: left center;
+            pointer-events: none;
+            z-index: 1;
+            background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 500px;
+            will-change: transform, opacity;
+        }
+        @keyframes shooting {
+            0% { transform: translate(0, 0) rotate(-45deg); opacity: 1; }
+            100% { transform: translate(-100vh, 100vh) rotate(-45deg); opacity: 0; }
+        }
+        .meteor-head {
+            position: absolute;
+            left: 0; top: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 10px 2px rgba(100, 200, 255, 0.8);
+        }
+
+        /* --- KONTEN --- */
+        .container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100%;
+        }
+
+        /* JUDUL DENGAN FONT SOFIA & EFEK NEON */
+        h1 {
+            font-family: "Bungee", sans-serif; /* Menggunakan Font Sofia */
+            margin-bottom: 40px;
+            font-size: 3rem; /* Diperbesar sedikit agar efek terlihat jelas */
+            letter-spacing: 2px;
+            color: #4169E1;
+            /* Text-shadow manual dihapus agar efek neon dari Google Font bekerja maksimal */
+        }
+
+        .candidates-grid {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 20px;
+            width: 100%;
+            justify-content: center;
+            align-items: stretch;
+            padding-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .card {
+            flex: 0 0 280px;
+            background: rgba(65, 105, 225, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            background: rgba(197, 31, 26, 0.90);
+            border-color: rgba(255, 255, 255, 1);
+        }
+
+        .number-badge {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.20);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 15px;
+        }
+
+        .img-placeholder {
+            width: 120px;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        .img-placeholder img { width: 100%; height: 100%; object-fit: cover; }
+
+        .candidate-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .btn-vote {
+            padding: 10px 40px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.20);
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-vote:active { transform: scale(0.95); }
+
+        .vote-count {
+            margin-top: 20px;
+            font-size: 2.5rem;
+            font-weight: 800;
+        }
+        .vote-label { font-size: 0.8rem; opacity: 0.7; text-transform: uppercase; }
+
+        .rotate-hint {
+            display: none;
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            opacity: 0.5;
+            z-index: 100;
+        }
+        @media screen and (orientation: portrait) {
+            .rotate-hint { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="rotate-wrapper">
+        <canvas id="starCanvas"></canvas>
+
+        <div class="container">
+            <h1 class="font-effect">Calon Ketua & Wakil Ketua<br>Himatika</h1>
+            
+            <div class="candidates-grid" id="candidate-container"></div>
+        </div>
+
+        <div class="rotate-hint">Mode Landscape Aktif</div>
+    </div>
+
+    <script>
+        // --- BAGIAN 1: BACKGROUND (Tetap Sama) ---
+        const canvas = document.getElementById('starCanvas');
+        const ctx = canvas.getContext('2d');
+        const wrapper = document.getElementById('rotate-wrapper');
+        let width, height, stars = [];
+        const isMobile = window.innerWidth < 768;
+        const starCount = isMobile ? 120 : 250; 
+
+        function resize() {
+            const isPortrait = window.innerHeight > window.innerWidth;
+            if (isPortrait) {
+                width = window.innerHeight;
+                height = window.innerWidth;
+            } else {
+                width = window.innerWidth;
+                height = window.innerHeight;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            initStars();
+        }
+
+        function initStars() {
+            stars = [];
+            for (let i = 0; i < starCount; i++) {
+                stars.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    size: Math.random() * 2,
+                    speed: Math.random() * 0.5 + 0.1,
+                    opacity: Math.random()
+                });
+            }
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = "white";
+            for (let i = 0; i < stars.length; i++) {
+                const star = stars[i];
+                ctx.globalAlpha = star.opacity;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+                star.y += star.speed; 
+                if (star.y > height) {
+                    star.y = 0;
+                    star.x = Math.random() * width;
+                }
+            }
+            requestAnimationFrame(animateStars);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+        animateStars();
+
+        // --- BAGIAN 2: METEOR (Tetap Sama) ---
+        let isTabActive = true;
+        let meteorTimeout;
+        document.addEventListener('visibilitychange', () => {
+            isTabActive = !document.hidden;
+            if (isTabActive) meteorLoop();
+            else clearTimeout(meteorTimeout);
+        });
+
+        function spawnMeteor() {
+            if (!isTabActive) return;
+            if (document.querySelectorAll('.meteor').length > 4) return;
+
+            const meteor = document.createElement('div');
+            meteor.classList.add('meteor');
+            const headSize = Math.random() * 2 + 2;
+            const tailLength = headSize * (Math.random() * 40 + 30);
+            const startX = Math.random() * 100; 
+            const duration = Math.random() * 1.5 + 1;
+
+            meteor.style.width = tailLength + 'px';
+            meteor.style.height = (headSize * 0.7) + 'px';
+            meteor.style.left = startX + '%';
+            meteor.style.top = '-50px';
+            meteor.style.animation = `shooting ${duration}s linear forwards`;
+
+            const head = document.createElement('div');
+            head.classList.add('meteor-head');
+            head.style.width = headSize + 'px';
+            head.style.height = headSize + 'px';
+            head.style.boxShadow = `0 0 ${headSize * 3}px ${headSize}px rgba(100, 200, 255, 0.8)`;
+            meteor.appendChild(head);
+            meteor.addEventListener('animationend', () => meteor.remove());
+            wrapper.appendChild(meteor);
+        }
+        function meteorLoop() {
+            clearTimeout(meteorTimeout);
+            if (isTabActive) {
+                spawnMeteor();
+                const randomDelay = Math.random() * 4000 + 1500;
+                meteorTimeout = setTimeout(meteorLoop, randomDelay);
+            }
+        }
+        setTimeout(meteorLoop, 1000);
+
+        // --- BAGIAN 3: SISTEM VOTING (Tetap Sama) ---
+        const candidatesData = [
+            { id: 1, number: "01", name: "Ketua & Wakil Ketua", image: "https://i.ibb.co.com/7JfXSfBc/kain-UIM-paslon-1.png" },
+            { id: 2, number: "02", name: "Ketua & Wakil Ketua", image: "https://i.ibb.co.com/7JfXSfBc/kain-UIM-paslon-1.png" },
+            { id: 3, number: "03", name: "Ketua & Wakil Ketua", image: "https://i.ibb.co.com/7JfXSfBc/kain-UIM-paslon-1.png" }
+        ];
+        const STORAGE_KEY = 'voting_data_v1';
+
+        function getVotes() {
+            const storedVotes = localStorage.getItem(STORAGE_KEY);
+            if (storedVotes) return JSON.parse(storedVotes);
+            const initialVotes = {};
+            candidatesData.forEach(c => initialVotes[c.id] = 0);
+            return initialVotes;
+        }
+
+        function saveVote(id) {
+            const votes = getVotes();
+            votes[id] = (votes[id] || 0) + 1;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(votes));
+            renderCandidates();
+        }
+
+        function renderCandidates() {
+            const container = document.getElementById('candidate-container');
+            const votes = getVotes();
+            container.innerHTML = ''; 
+            candidatesData.forEach(candidate => {
+                const currentVote = votes[candidate.id] || 0;
+                const cardHTML = `
+                    <div class="card">
+                        <div class="number-badge">${candidate.number}</div>
+                        <div class="img-placeholder"><img src="${candidate.image}" alt="${candidate.name}"></div>
+                        <div class="candidate-name">${candidate.name}</div>
+                        <button class="btn-vote" onclick="saveVote(${candidate.id})">PILIH</button>
+                        <div class="vote-count">${currentVote}</div>
+                        <div class="vote-label">SUARA</div>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+        }
+        renderCandidates();
+    </script>
+</body>
+</html>
