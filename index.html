@@ -14,19 +14,20 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(ellipse at bottom, #0B1026 0%, #000000 100%);
+            background: #000; /* Fallback color */
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: white;
-            overflow: hidden;
+            overflow: hidden; /* Body tidak boleh scroll, wrapper yang scroll */
         }
 
-        /* --- WRAPPER UTAMA --- */
+        /* --- WRAPPER UTAMA (DESKTOP DEFAULT) --- */
         #rotate-wrapper {
             width: 100vw;
             height: 100vh;
             position: relative;
             overflow-x: hidden;
             overflow-y: auto;
+            background: radial-gradient(ellipse at bottom, #0B1026 0%, #000000 100%);
         }
 
         /* --- CANVAS BINTANG --- */
@@ -40,7 +41,7 @@
             pointer-events: none;
         }
 
-        /* --- KONTEN STANDARD (DESKTOP) --- */
+        /* --- KONTEN STANDARD --- */
         .container {
             position: relative;
             z-index: 10;
@@ -54,7 +55,7 @@
             align-items: center;
             justify-content: center;
             min-height: 100%;
-            box-sizing: border-box; /* Penting agar padding tidak melebarkan wadah */
+            box-sizing: border-box;
         }
 
         h1 {
@@ -69,17 +70,17 @@
 
         .candidates-grid {
             display: flex;
-            flex-wrap: nowrap; /* Mencegah turun ke bawah */
+            flex-wrap: nowrap;
             gap: 20px;
             width: 100%;
             justify-content: center;
             align-items: stretch;
             padding-bottom: 20px;
-            overflow-x: auto; /* Scroll samping jika sempit */
+            overflow-x: auto;
         }
 
         .card {
-            flex: 0 0 280px; /* Ukuran Desktop */
+            flex: 0 0 280px;
             background: rgba(65, 105, 225, 0.75);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
@@ -156,93 +157,72 @@
         }
         .vote-label { font-size: 0.8rem; opacity: 0.7; text-transform: uppercase; }
 
-        /* --- LOGIKA KHUSUS HP (PORTRAIT DIBALIK JADI LANDSCAPE) --- */
+        /* --- PERBAIKAN LOGIKA KHUSUS HP (PORTRAIT) --- */
         @media screen and (orientation: portrait) {
             #rotate-wrapper {
+                /* Dimensi ditukar: Lebar Wrapper = Tinggi Layar HP */
                 width: 100vh; 
                 height: 100vw;
-                transform: rotate(90deg);
-                transform-origin: top left;
-                position: absolute;
-                top: 0;
-                left: 100vw;
-                overflow-y: hidden; /* Hilangkan scroll vertikal */
+                
+                /* POSISI FIX DI TENGAH */
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                
+                /* ROTASI DI TITIK TENGAH */
+                transform: translate(-50%, -50%) rotate(90deg);
+                transform-origin: center center;
+                
+                /* Scroll & Background */
+                overflow-y: auto;
                 overflow-x: hidden;
+                z-index: 9999;
+                background: radial-gradient(ellipse at bottom, #0B1026 0%, #000000 100%);
             }
 
-            /* --- PENYESUAIAN UKURAN AGAR MUAT DI HP --- */
+            /* Reset container agar pas di tengah wrapper yang sudah diputar */
             .container {
-                padding: 10px; /* Padding lebih tipis */
-                justify-content: center;
-                height: 100vh; /* Full tinggi layar landscape */
+                width: 100%;
+                min-height: 100%; 
+                padding: 10px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center; /* Center vertikal */
+                align-items: center;
             }
 
-            h1 {
-                font-size: 1.5rem; /* Judul diperkecil drastis */
-                margin-bottom: 15px;
-            }
-
-            .candidates-grid {
-                gap: 10px; /* Jarak antar kartu dirapatkan */
-                padding-bottom: 0;
-            }
-
+            /* --- MENGECILKAN UKURAN ELEMEN (Seperti sebelumnya) --- */
+            h1 { font-size: 1.4rem; margin-bottom: 15px; margin-top: 10px; }
+            .candidates-grid { gap: 15px; padding-bottom: 10px; }
             .card {
-                flex: 0 0 160px; /* Lebar kartu diperkecil (dari 280px ke 160px) */
-                padding: 10px; /* Padding dalam kartu diperkecil */
-                border-radius: 12px;
+                flex: 0 0 160px; /* Lebar kartu HP */
+                padding: 12px;
+                border-radius: 15px;
             }
-
-            .number-badge {
-                width: 30px;
-                height: 30px;
-                font-size: 0.9rem;
-                margin-bottom: 5px;
-            }
-
-            .img-placeholder {
-                width: 70px; /* Gambar diperkecil */
-                height: 70px;
-                margin-bottom: 5px;
-                border-radius: 10px;
-            }
-
-            .candidate-name {
-                font-size: 0.7rem; /* Font nama diperkecil */
-                min-height: 30px;
-                margin-bottom: 10px;
-                line-height: 1.1;
-            }
-
-            .btn-vote {
-                padding: 6px 15px; /* Tombol diperkecil */
-                font-size: 0.75rem;
-            }
-
-            .vote-count {
-                font-size: 1.2rem; /* Angka diperkecil */
-                margin-top: 10px;
-            }
-            
-            .vote-label {
-                font-size: 0.6rem;
-            }
+            .number-badge { width: 30px; height: 30px; font-size: 0.9rem; margin-bottom: 8px; }
+            .img-placeholder { width: 80px; height: 80px; margin-bottom: 8px; border-radius: 10px; }
+            .candidate-name { font-size: 0.75rem; min-height: 35px; margin-bottom: 10px; }
+            .btn-vote { padding: 8px 20px; font-size: 0.8rem; }
+            .vote-count { font-size: 1.4rem; margin-top: 10px; }
+            .vote-label { font-size: 0.6rem; }
         }
 
         /* --- HINT ROTASI & METEOR --- */
         .rotate-hint {
             display: none;
             position: fixed;
-            bottom: 10px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 0.7rem;
-            opacity: 0.6;
-            z-index: 100;
-            background: rgba(0,0,0,0.5);
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.7);
+            z-index: 10000; /* Z-index tertinggi agar terlihat di atas wrapper */
+            background: rgba(0,0,0,0.6);
             padding: 5px 10px;
-            border-radius: 10px;
+            border-radius: 20px;
+            pointer-events: none;
         }
+        /* Hint hanya muncul jika wrapper belum menutupi sempurna (opsional) */
         @media screen and (orientation: portrait) {
             .rotate-hint { display: block; }
         }
@@ -273,36 +253,40 @@
 </head>
 <body>
 
+    <div class="rotate-hint">Mode Landscape Aktif</div>
+
     <div id="rotate-wrapper">
         <canvas id="starCanvas"></canvas>
 
         <div class="container">
             <h1 class="font-effect">VOTE<br>Himatika</h1>
-            
             <div class="candidates-grid" id="candidate-container"></div>
         </div>
-
-        <div class="rotate-hint">Mode Landscape (HP)</div>
     </div>
 
     <script>
-        // --- BAGIAN 1: BACKGROUND ---
+        // --- LOGIKA JS TETAP SAMA ---
         const canvas = document.getElementById('starCanvas');
         const ctx = canvas.getContext('2d');
         const wrapper = document.getElementById('rotate-wrapper');
         let width, height, stars = [];
-        const isMobile = window.innerWidth < 768;
-        const starCount = isMobile ? 80 : 250; 
+        
+        // Deteksi Mobile
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+        const starCount = isMobile ? 80 : 250;
 
         function resize() {
-            // Logika resize disederhanakan agar canvas selalu mengikuti ukuran visual
-            width = window.innerWidth;
-            height = window.innerHeight;
+            // Karena wrapper di-rotate, kita ambil ukuran dari wrapper itu sendiri
+            // getBoundingClientRect memberi ukuran visual aktual
+            const rect = wrapper.getBoundingClientRect();
             
-            // Jika di HP (portrait), canvas harus mengikuti ukuran wrapper yang diputar
-            if (window.innerHeight > window.innerWidth && window.innerWidth < 768) {
+            // Pada mode portrait HP, karena di-rotate, Width canvas = Tinggi Layar
+            if (isMobile && window.innerHeight > window.innerWidth) {
                  width = window.innerHeight;
                  height = window.innerWidth;
+            } else {
+                 width = window.innerWidth;
+                 height = window.innerHeight;
             }
 
             canvas.width = width;
@@ -341,10 +325,11 @@
             requestAnimationFrame(animateStars);
         }
         window.addEventListener('resize', resize);
-        resize();
+        // Panggil resize sedikit delay agar layout render dulu
+        setTimeout(resize, 100);
         animateStars();
 
-        // --- BAGIAN 2: METEOR ---
+        // --- METEOR ---
         let isTabActive = true;
         let meteorTimeout;
         document.addEventListener('visibilitychange', () => {
@@ -355,12 +340,16 @@
 
         function spawnMeteor() {
             if (!isTabActive) return;
-            if (document.querySelectorAll('.meteor').length > 3) return; // Batasi meteor di HP biar ringan
+            if (document.querySelectorAll('.meteor').length > 3) return;
 
             const meteor = document.createElement('div');
             meteor.classList.add('meteor');
+            
+            // Ukuran meteor
             const headSize = Math.random() * 2 + 2;
             const tailLength = headSize * (Math.random() * 30 + 20);
+            
+            // Posisi random
             const startX = Math.random() * 100; 
             const duration = Math.random() * 1.5 + 1;
 
@@ -375,6 +364,7 @@
             head.style.width = headSize + 'px';
             head.style.height = headSize + 'px';
             head.style.boxShadow = `0 0 ${headSize * 3}px ${headSize}px rgba(100, 200, 255, 0.8)`;
+            
             meteor.appendChild(head);
             meteor.addEventListener('animationend', () => meteor.remove());
             wrapper.appendChild(meteor);
@@ -389,7 +379,7 @@
         }
         setTimeout(meteorLoop, 1000);
 
-        // --- BAGIAN 3: SISTEM VOTING ---
+        // --- VOTING SYSTEM ---
         const candidatesData = [
             { id: 1, number: "01", name: "Ketua & Wakil 1", image: "https://i.ibb.co.com/7JfXSfBc/kain-UIM-paslon-1.png" },
             { id: 2, number: "02", name: "Ketua & Wakil 2", image: "https://i.ibb.co.com/7JfXSfBc/kain-UIM-paslon-1.png" },
